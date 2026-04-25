@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  BUYER
+  ADMIN
+  SELLER
+}
+
+enum FuelType {
+  GASOLINE
+  ETHANOL
+  DIESEL
+  ELECTRIC
+  HYBRID
+  FLEX
+}
+
+enum VehicleCondition {
+  NEW
+  USED
+}
+
+enum VehicleColor {
+  WHITE
+  BLACK
+  SILVER
+  GRAY
+  RED
+  BLUE
+  YELLOW
+  GREEN
+  ORANGE
+  PURPLE
+  BROWN
+  BEIGE
+  GOLD
+  BRONZE
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+  CVT
+  SEMI_AUTOMATIC
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  SOLD
+  RESERVED
+  INACTIVE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      UserRole @default(BUYER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  avatar        Photo?
+  vehicles      Vehicle[]
+  viewHistories ViewHistory[]
+  favorites     Favorites[]
+
+  @@map("users")
+}
+
+model VehicleCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  vehicles    Vehicle[]
+  viewHistory ViewHistory[]
+
+  @@map("vehicles_categories")
+}
+
+model VehicleBrand {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  models VehicleModel[]
+
+  @@map("vehicles_brands")
+}
+
+model VehicleModel {
+  id      Int    @id @default(autoincrement())
+  name    String
+  slug    String @unique
+  brandId Int    @map("brand_id")
+
+  brand    VehicleBrand @relation(fields: [brandId], references: [id])
+  vehicles Vehicle[]
+
+  @@index([brandId])
+  @@map("vehicles_models")
+}
+
+model Vehicle {
+  id           String           @id @default(uuid())
+  slug         String           @unique
+  year         Int
+  price        Decimal          @db.Decimal(10, 2)
+  version      String
+  mileage      Int
+  description  String?
+  sponsored    Boolean          @default(false)
+  city         String
+  state        String           @db.Char(2)
+  plateFinal   String           @map("plate_final")
+  fuelType     FuelType         @map("fuel_type")
+  condition    VehicleCondition
+  color        VehicleColor
+  transmission Transmission
+  status       VehicleStatus
+  inspected    Boolean          @default(false)
+  armored      Boolean          @default(false)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  categoryId Int    @map("category_id")
+  modelId    Int    @map("model_id")
+  ownerId    String @map("owner_id")
+
+  category    VehicleCategory  @relation(fields: [categoryId], references: [id])
+  model       VehicleModel     @relation(fields: [modelId], references: [id])
+  owner       User             @relation(fields: [ownerId], references: [id])
+  photos      Photo[]
+  features    VehicleFeature[]
+  viewHistory ViewHistory[]
+  favorites   Favorites[]
+
+  @@index([categoryId])
+  @@index([modelId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([price])
+  @@index([year])
+  @@index([mileage])
+  @@index([condition])
+  @@index([fuelType])
+  @@index([city, state])
+  @@index([sponsored, createdAt])
+  @@index([armored])
+  @@index([color])
+  @@index([transmission])
+  @@index([inspected])
+  @@map("vehicles")
+}
+
+model Photo {
+  id        Int      @id @default(autoincrement())
+  url       String
+  isCover   Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String @unique @map("user_id")
+  vehicleId String @map("vehicle_id")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+  @@map("photos")
+}
+
+model VehicleFeature {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  vehicleId String  @map("vehicle_id")
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+  @@map("vehicles_features")
+}
+
+// Recomendations
+model ViewHistory {
+  id       Int      @id @default(autoincrement())
+  viewedAt DateTime @default(now()) @map("viewed_at")
+
+  userId     String @map("user_id")
+  vehicleId  String @map("vehicle_id")
+  categoryId Int    @map("category_id")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle  Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  category VehicleCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([viewedAt, userId])
+  @@map("view_histories")
+}
+
+model Favorites {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String @map("user_id")
+  vehicleId String @map("vehicle_id")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vehicleId])
+  @@index([userId])
+  @@map("favorites")
+}
