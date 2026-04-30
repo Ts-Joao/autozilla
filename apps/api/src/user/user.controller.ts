@@ -17,18 +17,18 @@ export class UserController {
         return this.usersServices.get()
     }
 
-    @Get('id')
-    getUserById(@Param(ParseUUIDPipe) id: string) {
+    @Get(':id')
+    getUserById(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersServices.getById(id)
     }
 
-    @Patch('id')
-    updateUser(@Param(ParseUUIDPipe) id: string, updateUserDto: UpdateUserDto) {
+    @Patch(':id')
+    updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
         return this.usersServices.update(id, updateUserDto)
     }
 
-    @Delete('id')
-    deleteUser(@Param(ParseUUIDPipe) id: string) {
+    @Delete(':id')
+    deleteUser(@Param('id', ParseUUIDPipe) id: string) {
         return this.usersServices.remove(id)
     }
 }

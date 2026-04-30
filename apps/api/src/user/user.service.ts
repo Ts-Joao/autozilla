@@ -83,23 +83,32 @@ export class UserService {
     async update(id: string, updateUserDto: UpdateUserDto) {
         try {
             await this.getById(id)
-            
-            const { password, email, ...rest } = updateUserDto
 
-            if (email) {
-                await this.existEmail(email)
+            const { password, avatar, ...rest } = updateUserDto
+
+            if (updateUserDto.email) {
+                await this.existEmail(updateUserDto.email)
             }
 
             const user = await this.databaseService.user.update({
                 where: { id },
                 data: {
                     ...rest,
-                    ...(password && { password: bcrypt.hashSync(password, 12) })
+                    ...(password && { password: bcrypt.hashSync(password, 10) }),
+                    ...(avatar && {
+                        avatar: {
+                            upsert: {
+                                create: { url: avatar },
+                                update: { url: avatar }
+                            }
+                        }
+                    })
                 }
             })
 
             return user
         } catch (error) {
+            console.error(error)
             throw new InternalServerErrorException()
         }
     }
