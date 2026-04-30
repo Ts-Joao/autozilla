@@ -125,7 +125,7 @@ model Vehicle {
   condition    VehicleCondition
   color        VehicleColor
   transmission Transmission
-  status       VehicleStatus
+  status       VehicleStatus    @default(AVAILABLE)
   inspected    Boolean          @default(false)
   armored      Boolean          @default(false)
   createdAt    DateTime         @default(now()) @map("created_at")
