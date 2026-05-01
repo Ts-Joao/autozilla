@@ -191,7 +191,7 @@ model Avatar {
 
 model Feature {
   id       Int              @id @default(autoincrement())
-  name     String
+  name     String           @unique
   vehicles VehicleFeature[]
 
   @@map("features")
