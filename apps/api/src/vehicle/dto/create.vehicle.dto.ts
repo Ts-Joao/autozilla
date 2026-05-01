@@ -1,4 +1,4 @@
-import { FuelType, Transmission, VehicleCondition, VehicleFeature } from "@prisma/client"
+import { FuelType, Transmission, VehicleColor, VehicleCondition } from "@prisma/client"
 import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Min } from "class-validator"
 
 export class CreateVehicleDto {
@@ -26,11 +26,10 @@ export class CreateVehicleDto {
     readonly mileage: number
 
     @IsEnum(FuelType)
-    readonly fuel: FuelType
+    readonly fuelType: FuelType
 
-    @IsString()
-    @IsNotEmpty()
-    readonly color: string
+    @IsEnum(VehicleColor)
+    readonly color: VehicleColor
 
     @IsEnum(Transmission)
     readonly transmission: Transmission
@@ -52,6 +51,12 @@ export class CreateVehicleDto {
     @Matches(/^[A-Z]{2}$/)
     readonly state: string
 
+    @IsInt()
+    readonly categoryId: number
+
+    @IsInt()
+    readonly modelId: number
+
     @IsArray()
     @IsString({ each: true })
     @IsNotEmpty({ each: true })
@@ -59,9 +64,9 @@ export class CreateVehicleDto {
 
     @IsArray()
     @IsOptional()
-    @IsString({ each: true })
+    @IsInt({ each: true })
     @IsNotEmpty({ each: true })
-    readonly features?: VehicleFeature[]
+    readonly features?: number[]
 
     @IsOptional()
     @IsBoolean()

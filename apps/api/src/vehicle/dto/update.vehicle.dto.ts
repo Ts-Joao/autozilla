@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsOptional } from "class-validator"
+import { IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString } from "class-validator"
 import { CreateVehicleDto } from "./create.vehicle.dto"
 import { PartialType } from "@nestjs/mapped-types"
 import { VehicleStatus } from "@prisma/client"
@@ -12,7 +12,23 @@ export class UpdateVehicleDto extends PartialType(CreateVehicleDto) {
     @IsOptional()
     readonly inspected?: boolean
 
-    @IsBoolean()
     @IsOptional()
-    readonly sponsored?: boolean
+    @IsArray()
+    @IsString({ each: true })
+    readonly addPhotos?: string[]
+
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    readonly removePhotos?: number[]
+
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    readonly addFeatures?: number[]
+
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    readonly removeFeatures?: number[]
 }

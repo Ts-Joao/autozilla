@@ -1,4 +1,4 @@
-import { FuelType, Photo, Transmission, VehicleColor, VehicleCondition, VehicleFeature } from "@prisma/client"
+import { FuelType, Photo, Transmission, VehicleColor, VehicleCondition, VehicleFeature, VehicleStatus } from "@prisma/client"
 
 export type Vehicle = {
     id: string
@@ -18,4 +18,7 @@ export type Vehicle = {
     ownerId: string
     photos?: Photo[]
     features?: VehicleFeature[]
+    sponsored?: boolean
+    inspected?: boolean
+    status?: VehicleStatus
 }

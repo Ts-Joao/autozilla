@@ -130,6 +130,7 @@ model Vehicle {
   armored      Boolean          @default(false)
   createdAt    DateTime         @default(now()) @map("created_at")
   updatedAt    DateTime         @updatedAt @map("updated_at")
+  deletedAt    DateTime?        @map("deleted_at")
 
   categoryId Int    @map("category_id")
   modelId    Int    @map("model_id")
@@ -143,6 +144,7 @@ model Vehicle {
   viewHistory ViewHistory[]
   favorites   Favorites[]
 
+  @@index([deletedAt])
   @@index([categoryId])
   @@index([modelId])
   @@index([ownerId])
@@ -187,13 +189,24 @@ model Avatar {
   @@map("avatars")
 }
 
-model VehicleFeature {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  vehicleId String  @map("vehicle_id")
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+model Feature {
+  id       Int              @id @default(autoincrement())
+  name     String
+  vehicles VehicleFeature[]
 
+  @@map("features")
+}
+
+model VehicleFeature {
+  vehicleId String @map("vehicle_id")
+  featureId Int    @map("feature_id")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  feature Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@id([vehicleId, featureId])
   @@index([vehicleId])
+  @@index([featureId])
   @@map("vehicles_features")
 }
 
